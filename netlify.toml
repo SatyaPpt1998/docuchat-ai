@@ -1,0 +1,26 @@
+[build]
+  publish = "."
+  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"
+
+[[redirects]]
+  from = "/api/chat"
+  to   = "/.netlify/functions/chat"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Auth note: login/signup currently runs fully client-side using localStorage
+# (works locally and once deployed, no setup needed). It's a great starting
+# point for testing and a small user base, but localStorage accounts only
+# exist in one browser/device and aren't a substitute for a real backend.
+# For production-grade auth with cross-device login, see README.md for a
+# Supabase migration path (free tier, supports email/password, phone OTP,
+# and Google login).
