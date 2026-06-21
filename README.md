@@ -54,6 +54,35 @@ the browser; `netlify/functions/chat.js` handles it server-side.
 
 ---
 
+## 🔍 Getting found on Google
+
+### 1. Submit your site to Google Search Console
+1. Go to search.google.com/search-console
+2. Add your Netlify URL as a property → verify via the HTML meta tag method
+3. Submit `sitemap.xml` (included in this project) under the **Sitemaps** tab
+4. Use **URL Inspection → Request Indexing** on your homepage
+
+### 2. Update these files with your real URL
+Before deploying, find-and-replace `docuchat-ai.netlify.app` in:
+- `sitemap.xml`
+- `robots.txt`
+- The `<meta property="og:url">` and `<link rel="canonical">` tags in `index.html`
+
+with whatever site name you actually chose in Netlify.
+
+### 3. SEO content is already built in
+The bottom of the page (below the chat app) includes real, readable text:
+what the tool does, supported formats, who it's for, and an FAQ section.
+This is what Google actually indexes and ranks — a single-page chat app
+with no text has nothing for search engines to match against queries.
+
+Realistic expectation: indexing usually takes a few days to a few weeks,
+and ranking competitively for terms like "chat with pdf" takes ongoing
+content and backlinks over months, not days. Submitting to Search Console
+just makes sure Google *can* find you — it doesn't guarantee top rankings.
+
+---
+
 ## 🔐 About login & history (current vs. production)
 
 **Right now**, accounts and chat history are stored in the browser's
@@ -84,6 +113,53 @@ signups and money, migrate to a proper auth backend — the easiest is
 
 Ask me to do this migration for you when you're ready to launch publicly —
 it's a contained change and I can wire it up end-to-end.
+
+---
+
+## 💳 Setting up real payments (Razorpay — ₹49/month Pro plan)
+
+The app already has the full free/paid logic built in:
+- **Free plan**: 5 questions and 3 document uploads per 24 hours (resets automatically)
+- **Pro plan**: ₹49/month, unlimited everything
+- Limits are tracked per-browser via `localStorage` (consistent with the rest of the app's auth/history — see the Supabase note above for moving to per-account tracking later)
+
+To accept **real money**, you need a Razorpay account — here's the full setup:
+
+### 1. Create a Razorpay account
+1. Go to dashboard.razorpay.com → sign up (free, takes a few minutes)
+2. You'll start in **Test Mode** — good for trying the full flow without real money
+3. To go live later, complete KYC (business/individual details) under **Account & Settings**
+
+### 2. Get your API keys
+1. Dashboard → **Settings → API Keys → Generate Test Key** (or Live Key once KYC is done)
+2. You'll get a **Key ID** (starts with `rzp_test_...` or `rzp_live_...`) and a **Key Secret**
+
+### 3. Add keys in two places
+
+**In Netlify** (Site settings → Environment variables), add:
+```
+RAZORPAY_KEY_ID = rzp_test_xxxxxxxxxxxx
+RAZORPAY_KEY_SECRET = your_secret_key_here
+```
+These power `create-order.js` and `verify-payment.js` — your secret key never touches the browser.
+
+**In `index.html`**, find this line near the top of the script:
+```js
+const RAZORPAY_KEY_ID = 'rzp_test_XXXXXXXXXXXX';
+```
+Replace it with your real Key ID (the public one — safe to put in browser code, it's not the secret).
+
+### 4. Test it
+1. Push changes, wait for Netlify to redeploy
+2. Click **Upgrade** in the app → **Upgrade Now**
+3. Razorpay's test mode accepts dummy card `4111 1111 1111 1111`, any future expiry, any CVV
+4. On success, the app calls `verify-payment.js` to confirm the payment is real before unlocking Pro — this stops someone from faking an upgrade via the browser console
+
+### 5. Go live
+Once Razorpay approves your KYC, switch to **Live Keys** in both places above. Real ₹49 charges will then go through.
+
+### About recurring billing
+Right now this charges ₹49 **once** per click of "Upgrade Now" — it does not yet auto-renew monthly. For true subscriptions (auto-charge every month until cancelled), Razorpay supports this via their **Subscriptions** API (a Plan + Subscription object, instead of a one-time Order). That's a moderate-sized upgrade — happy to wire it up when you're ready to launch for real.
 
 ---
 
