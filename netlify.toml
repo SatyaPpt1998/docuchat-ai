@@ -24,3 +24,11 @@
 # For production-grade auth with cross-device login, see README.md for a
 # Supabase migration path (free tier, supports email/password, phone OTP,
 # and Google login).
+
+# Payments note: create-order.js and verify-payment.js (under
+# netlify/functions/) require two environment variables to work:
+#   RAZORPAY_KEY_ID      — from dashboard.razorpay.com → Settings → API Keys
+#   RAZORPAY_KEY_SECRET  — same page, keep this one secret, never in browser code
+# You also need to paste your public Key ID into RAZORPAY_KEY_ID inside
+# index.html's <script> (search for "rzp_test_XXXX"). See README.md for the
+# full payment setup walkthrough.
