@@ -3,8 +3,42 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DocuChat AI — Intelligent Document Assistant</title>
-<meta name="description" content="Upload any document — PDF, Word, HTML, CSV, JSON — and chat with it instantly using AI.">
+
+<!-- Primary SEO -->
+<title>DocuChat AI — Chat With Your PDF, Word & Documents Using AI</title>
+<meta name="description" content="Upload any PDF, Word, DOCX, CSV, or text file and ask questions about it instantly. Free AI document chat assistant powered by Claude — summarize, extract, and analyze documents in seconds.">
+<meta name="keywords" content="chat with pdf, AI document assistant, pdf chatbot, document Q&A AI, upload document ask questions, AI summarizer, docx chat tool, free document AI">
+<link rel="canonical" href="https://docuchat-ai.netlify.app/">
+
+<!-- Open Graph (Facebook, LinkedIn, WhatsApp previews) -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="DocuChat AI — Chat With Your Documents Using AI">
+<meta property="og:description" content="Upload any PDF, Word, or text file and ask questions about it instantly. Free AI-powered document chat assistant.">
+<meta property="og:url" content="https://docuchat-ai.netlify.app/">
+<meta property="og:site_name" content="DocuChat AI">
+
+<!-- Twitter/X card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="DocuChat AI — Chat With Your Documents Using AI">
+<meta name="twitter:description" content="Upload any PDF, Word, or text file and ask questions about it instantly with AI.">
+
+<!-- Structured data so Google can show a rich result -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "DocuChat AI",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Web",
+  "description": "AI-powered chatbot that reads PDF, Word, DOCX, CSV, JSON, and text documents and answers questions about their content.",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  }
+}
+</script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -36,15 +70,18 @@
     --shadow-glow: 0 0 40px rgba(108,99,255,0.2);
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { height: 100%; overflow: hidden; }
+  html, body { height: auto; min-height: 100%; overflow-y: auto; }
   body {
     font-family: 'Inter', sans-serif;
     background: var(--bg-900);
     color: var(--text-primary);
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    min-height: 100vh;
   }
+  /* App shell (nav + sidebar + chat) is locked to one viewport-height screen;
+     SEO content sits below it and the page scrolls to reveal it. */
+  .app-body { height: calc(100vh - 58px); }
 
   /* ── Top Nav ── */
   nav {
@@ -662,6 +699,215 @@
   }
   .new-chat-btn:hover { background: var(--accent-dim); }
 
+  /* ── Plan chip + upgrade button (nav) ── */
+  .plan-chip {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    background: var(--bg-700);
+    border: 1px solid var(--border-hover);
+    color: var(--text-secondary);
+  }
+  .plan-chip.is-pro {
+    background: linear-gradient(135deg, rgba(108,99,255,0.18), rgba(0,217,176,0.18));
+    border-color: rgba(108,99,255,0.4);
+    color: var(--accent-light);
+  }
+  .upgrade-btn {
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 6px 13px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, var(--accent), var(--teal));
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    transition: opacity .15s;
+  }
+  .upgrade-btn:hover { opacity: .88; }
+  .upgrade-btn.hidden { display: none; }
+
+  /* ── Usage meter (sidebar) ── */
+  .usage-meter {
+    margin: 0 10px 10px;
+    padding: 10px 12px;
+    background: var(--bg-700);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+  }
+  .usage-meter-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+  }
+  .usage-meter-row:last-child { margin-bottom: 0; }
+  .usage-meter-row b { color: var(--text-primary); font-weight: 600; }
+  .usage-bar-track {
+    height: 4px;
+    background: var(--bg-600);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 4px;
+  }
+  .usage-bar-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 4px;
+    transition: width .3s;
+  }
+  .usage-bar-fill.danger { background: var(--danger); }
+  .usage-reset-note {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    margin-top: 8px;
+    line-height: 1.5;
+  }
+  .usage-upgrade-link {
+    display: block;
+    text-align: center;
+    margin-top: 8px;
+    padding: 7px;
+    background: var(--accent-dim2);
+    border: 1px solid rgba(108,99,255,0.25);
+    border-radius: var(--radius-sm);
+    color: var(--accent-light);
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .usage-upgrade-link:hover { background: var(--accent-dim); }
+
+  /* ── Pricing modal ── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    padding: 20px;
+  }
+  .modal-overlay.show { display: flex; }
+  .pricing-card-wrap {
+    background: var(--bg-800);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    padding: 32px;
+    width: 100%;
+    max-width: 540px;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .modal-close {
+    position: absolute;
+    top: 18px; right: 18px;
+    background: none;
+    border: none;
+    color: var(--text-tertiary);
+    font-size: 18px;
+    cursor: pointer;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .15s;
+  }
+  .modal-close:hover { background: var(--bg-600); color: var(--text-primary); }
+  .pricing-card-wrap h2 { font-size: 20px; font-weight: 700; text-align: center; margin-bottom: 6px; }
+  .pricing-sub { text-align: center; font-size: 12.5px; color: var(--text-secondary); margin-bottom: 26px; }
+  .pricing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .pricing-plan {
+    border: 1px solid var(--border-hover);
+    border-radius: var(--radius-lg);
+    padding: 20px 16px;
+    background: var(--bg-700);
+  }
+  .pricing-plan.pro {
+    border-color: rgba(108,99,255,0.4);
+    background: linear-gradient(160deg, rgba(108,99,255,0.1), rgba(0,217,176,0.06));
+    position: relative;
+  }
+  .pricing-plan.pro::before {
+    content: 'BEST VALUE';
+    position: absolute;
+    top: -9px; left: 50%; transform: translateX(-50%);
+    background: linear-gradient(135deg, var(--accent), var(--teal));
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .05em;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+  .pricing-plan-name { font-size: 13px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+  .pricing-plan-price { font-size: 26px; font-weight: 700; color: var(--text-primary); margin-bottom: 2px; }
+  .pricing-plan-price span { font-size: 12px; font-weight: 500; color: var(--text-tertiary); }
+  .pricing-plan-cycle { font-size: 11px; color: var(--text-tertiary); margin-bottom: 14px; }
+  .pricing-feature-list { list-style: none; margin-bottom: 18px; }
+  .pricing-feature-list li {
+    font-size: 12px;
+    color: var(--text-secondary);
+    padding: 5px 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  .pricing-feature-list li::before { content: '✓'; color: var(--teal); font-weight: 700; flex-shrink: 0; }
+  .pricing-cta {
+    width: 100%;
+    padding: 10px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid var(--border-hover);
+    background: var(--bg-600);
+    color: var(--text-primary);
+    transition: all .15s;
+  }
+  .pricing-cta.primary {
+    background: linear-gradient(135deg, var(--accent), var(--teal));
+    border: none;
+    color: #fff;
+  }
+  .pricing-cta.primary:hover { opacity: .9; }
+  .pricing-cta:disabled { opacity: .6; cursor: default; }
+  .pricing-footnote {
+    text-align: center;
+    font-size: 10.5px;
+    color: var(--text-tertiary);
+    margin-top: 18px;
+    line-height: 1.6;
+  }
+
+  /* ── Limit-reached toast ── */
+  .limit-banner {
+    margin: 0 0 12px;
+    padding: 12px 14px;
+    background: rgba(255,107,107,0.08);
+    border: 1px solid rgba(255,107,107,0.25);
+    border-radius: var(--radius-md);
+    font-size: 12.5px;
+    color: var(--text-primary);
+    line-height: 1.6;
+  }
+  .limit-banner b { color: var(--danger); }
+  .limit-banner .upgrade-inline {
+    color: var(--accent-light);
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
+  @media (max-width: 520px) {
+    .pricing-grid { grid-template-columns: 1fr; }
+  }
+
   /* Responsive */
   @media (max-width: 640px) {
     aside { width: 200px; }
@@ -675,7 +921,7 @@
 <div id="login-screen">
   <div class="login-card">
     <div class="login-logo">🤖</div>
-    <h1 id="auth-title">Welcome to DocuChat AI</h1>
+    <div id="auth-title" style="text-align:center;font-size:19px;font-weight:600;margin-bottom:4px">Welcome to DocuChat AI</div>
     <div class="sub" id="auth-sub">Sign in to save your documents & chat history</div>
 
     <div class="auth-tabs">
@@ -723,6 +969,8 @@
     <span class="nav-badge">BETA</span>
   </div>
   <div class="nav-right">
+    <span class="plan-chip" id="plan-chip">Free Plan</span>
+    <button class="upgrade-btn" id="btn-upgrade-nav" onclick="openPricing()">⚡ Upgrade</button>
     <span class="nav-stat"><span class="dot"></span> AI Online</span>
     <div class="user-menu" id="user-menu" style="display:none">
       <div class="user-chip" id="user-chip">
@@ -731,6 +979,8 @@
       </div>
       <div class="user-dropdown" id="user-dropdown">
         <div class="user-dropdown-item" id="dd-email" style="cursor:default"></div>
+        <div class="user-dropdown-divider"></div>
+        <div class="user-dropdown-item" id="dd-plan-item" onclick="openPricing()">View plans</div>
         <div class="user-dropdown-divider"></div>
         <div class="user-dropdown-item" id="btn-logout-item">Log out</div>
       </div>
@@ -750,6 +1000,8 @@
 
     <!-- DOCUMENTS PANEL -->
     <div class="tab-panel active" id="panel-docs">
+      <div class="new-chat-btn" onclick="startNewSession()">＋ New Chat</div>
+
       <div class="sidebar-section">
         <div class="sidebar-label">
           Documents
@@ -772,6 +1024,21 @@
         </div>
       </div>
 
+      <div class="usage-meter" id="usage-meter">
+        <div class="usage-meter-row">
+          <span>Questions today</span>
+          <b id="usage-questions-label">0 / 5</b>
+        </div>
+        <div class="usage-bar-track"><div class="usage-bar-fill" id="usage-questions-bar" style="width:0%"></div></div>
+        <div class="usage-meter-row" style="margin-top:10px">
+          <span>Documents today</span>
+          <b id="usage-docs-label">0 / 3</b>
+        </div>
+        <div class="usage-bar-track"><div class="usage-bar-fill" id="usage-docs-bar" style="width:0%"></div></div>
+        <div class="usage-reset-note" id="usage-reset-note">Resets in 24h</div>
+        <div class="usage-upgrade-link" id="usage-upgrade-link" onclick="openPricing()">⚡ Upgrade for unlimited — ₹49/mo</div>
+      </div>
+
       <div class="sidebar-footer">
         Powered by Claude AI · All processing in-browser<br>
         <a href="#" onclick="clearAll()">Clear all documents</a>
@@ -780,7 +1047,6 @@
 
     <!-- HISTORY PANEL -->
     <div class="tab-panel" id="panel-history">
-      <div class="new-chat-btn" onclick="startNewSession()">＋ New Chat</div>
       <div class="history-list" id="history-list">
         <div class="history-empty" id="history-empty">
           <span class="doc-empty-icon">🕘</span>
@@ -830,6 +1096,106 @@
   </div>
 
 </div>
+
+<!-- SEO CONTENT — visible to users (collapsed below the fold) and fully readable by Google -->
+<main id="seo-content" style="max-width:760px;margin:0 auto;padding:48px 24px 80px;color:var(--text-secondary);font-size:14px;line-height:1.75">
+  <h1 style="font-size:26px;font-weight:700;color:var(--text-primary);margin-bottom:12px">
+    DocuChat AI — Chat With Your PDF, Word, and Text Documents Using AI
+  </h1>
+  <p style="margin-bottom:16px">
+    DocuChat AI is a free AI document assistant that lets you upload any file — PDF, Word (DOCX), plain text,
+    HTML, CSV, JSON, XML, or RTF — and instantly ask questions about its contents. Instead of manually
+    searching through long reports, contracts, or research papers, just upload the file and ask DocuChat AI
+    directly. It reads the entire document and answers based only on what's inside it.
+  </p>
+
+  <h2 style="font-size:18px;font-weight:600;color:var(--text-primary);margin:28px 0 10px">How DocuChat AI Works</h2>
+  <p style="margin-bottom:16px">
+    Upload one or more documents using the panel above. DocuChat AI extracts the text from each file —
+    using PDF parsing for PDFs and Word document parsing for DOCX files — and loads it into context.
+    You can then ask natural-language questions like "summarize this contract," "what are the key risks
+    mentioned in this report," or "list every action item across these three files." The AI responds using
+    only the content of your uploaded documents, and tells you which document each answer came from.
+  </p>
+
+  <h2 style="font-size:18px;font-weight:600;color:var(--text-primary);margin:28px 0 10px">Supported File Formats</h2>
+  <ul style="margin:0 0 16px 20px;padding:0">
+    <li><strong>PDF</strong> — reports, research papers, scanned text documents</li>
+    <li><strong>Word / DOCX</strong> — contracts, resumes, proposals, essays</li>
+    <li><strong>TXT, Markdown</strong> — notes, documentation, README files</li>
+    <li><strong>CSV, JSON, XML</strong> — structured data and configuration files</li>
+    <li><strong>HTML</strong> — web page exports and saved articles</li>
+  </ul>
+
+  <h2 style="font-size:18px;font-weight:600;color:var(--text-primary);margin:28px 0 10px">Who Uses DocuChat AI</h2>
+  <p style="margin-bottom:16px">
+    Students use it to quickly understand long academic papers. Professionals use it to extract key terms
+    from contracts and legal documents without reading every clause. Researchers use it to compare findings
+    across multiple papers at once. Anyone with a long document and a short amount of time can benefit from
+    asking an AI to read it for them.
+  </p>
+
+  <h2 style="font-size:18px;font-weight:600;color:var(--text-primary);margin:28px 0 10px">Frequently Asked Questions</h2>
+
+  <p style="margin-bottom:4px"><strong>Is DocuChat AI free to use?</strong></p>
+  <p style="margin-bottom:16px">Yes — the free plan lets you upload up to 3 documents and ask up to 5 questions every 24 hours, no cost. For unlimited uploads and questions, the Pro plan is ₹49/month.</p>
+
+  <p style="margin-bottom:4px"><strong>Is my document data private?</strong></p>
+  <p style="margin-bottom:16px">Document text is processed to generate answers but is not permanently stored on our servers — only chat history and document names are saved for logged-in users, so you can revisit past sessions.</p>
+
+  <p style="margin-bottom:4px"><strong>What AI model powers DocuChat AI?</strong></p>
+  <p style="margin-bottom:16px">DocuChat AI is powered by Claude, an AI model built by Anthropic, known for accurate and careful document analysis.</p>
+
+  <p style="margin-bottom:4px"><strong>Can I upload multiple documents at once?</strong></p>
+  <p style="margin-bottom:0">Yes — upload several files together and ask questions that span across all of them, such as comparisons or combined summaries.</p>
+</main>
+
+<!-- PRICING MODAL -->
+<div class="modal-overlay" id="pricing-modal">
+  <div class="pricing-card-wrap">
+    <button class="modal-close" onclick="closePricing()" aria-label="Close">✕</button>
+    <h2>Choose your plan</h2>
+    <div class="pricing-sub">Upgrade anytime — cancel anytime.</div>
+
+    <div class="pricing-grid">
+      <!-- FREE -->
+      <div class="pricing-plan">
+        <div class="pricing-plan-name">Free</div>
+        <div class="pricing-plan-price">₹0</div>
+        <div class="pricing-plan-cycle">forever</div>
+        <ul class="pricing-feature-list">
+          <li>5 questions / 24 hours</li>
+          <li>3 document uploads / 24 hours</li>
+          <li>All file formats supported</li>
+          <li>Chat history saved</li>
+        </ul>
+        <button class="pricing-cta" id="btn-plan-free" disabled>Current Plan</button>
+      </div>
+
+      <!-- PRO -->
+      <div class="pricing-plan pro">
+        <div class="pricing-plan-name">Pro</div>
+        <div class="pricing-plan-price">₹49<span>/month</span></div>
+        <div class="pricing-plan-cycle">billed monthly</div>
+        <ul class="pricing-feature-list">
+          <li>Unlimited questions</li>
+          <li>Unlimited document uploads</li>
+          <li>All file formats supported</li>
+          <li>Priority response speed</li>
+          <li>Unlimited chat history</li>
+        </ul>
+        <button class="pricing-cta primary" id="btn-plan-pro" onclick="startCheckout()">Upgrade Now</button>
+      </div>
+    </div>
+
+    <div class="pricing-footnote" id="pricing-footnote">
+      Payments are securely processed by Razorpay. By upgrading, you agree to be charged ₹49 monthly until cancelled.
+    </div>
+  </div>
+</div>
+
+<!-- Razorpay checkout -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 <!-- PDF.js + Mammoth -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -1037,8 +1403,186 @@ function onAuthReady() {
     ddEmail.textContent = 'Not signed in — history won\'t be saved';
     historyEmptyEl.innerHTML = `<span class="doc-empty-icon">🔒</span>Log in to save & view<br>your document history.`;
   }
+  renderPlanUI();
   startNewSession(true);
 }
+
+// ════════════════════════════════════════════════════════════════════════════
+// PLANS + USAGE LIMITS
+// Free: 5 questions / 24h, 3 document uploads / 24h.
+// Pro (₹49/mo): unlimited everything. Tracked per-browser via localStorage —
+// good enough for launch; trivially reset via incognito/clearing storage, but
+// real abuse prevention requires server-side tracking, which is a later step.
+// ════════════════════════════════════════════════════════════════════════════
+const FREE_QUESTION_LIMIT = 5;
+const FREE_DOC_LIMIT = 3;
+const PLAN_KEY = 'docuchat_plan_v1';        // 'free' | 'pro'
+const USAGE_KEY = 'docuchat_usage_v1';      // { windowStart, questions, docs }
+
+function getPlan() {
+  return localStorage.getItem(PLAN_KEY) === 'pro' ? 'pro' : 'free';
+}
+function setPlan(plan) {
+  localStorage.setItem(PLAN_KEY, plan);
+  renderPlanUI();
+}
+function isPro() { return getPlan() === 'pro'; }
+
+function getUsage() {
+  let u;
+  try { u = JSON.parse(localStorage.getItem(USAGE_KEY)); } catch { u = null; }
+  const now = Date.now();
+  // Reset the rolling 24h window if it has expired or doesn't exist yet
+  if (!u || !u.windowStart || (now - u.windowStart) > 24 * 60 * 60 * 1000) {
+    u = { windowStart: now, questions: 0, docs: 0 };
+    localStorage.setItem(USAGE_KEY, JSON.stringify(u));
+  }
+  return u;
+}
+function bumpUsage(field) {
+  const u = getUsage();
+  u[field] = (u[field] || 0) + 1;
+  localStorage.setItem(USAGE_KEY, JSON.stringify(u));
+  renderPlanUI();
+}
+function hoursUntilReset() {
+  const u = getUsage();
+  const msLeft = 24 * 60 * 60 * 1000 - (Date.now() - u.windowStart);
+  return Math.max(0, Math.ceil(msLeft / (60 * 60 * 1000)));
+}
+
+function canAskQuestion() {
+  if (isPro()) return true;
+  return getUsage().questions < FREE_QUESTION_LIMIT;
+}
+function canUploadDoc() {
+  if (isPro()) return true;
+  return getUsage().docs < FREE_DOC_LIMIT;
+}
+
+function renderPlanUI() {
+  const pro = isPro();
+  const planChip = document.getElementById('plan-chip');
+  const upgradeBtnNav = document.getElementById('btn-upgrade-nav');
+  const usageMeter = document.getElementById('usage-meter');
+
+  planChip.textContent = pro ? 'Pro Plan ⚡' : 'Free Plan';
+  planChip.classList.toggle('is-pro', pro);
+  upgradeBtnNav.classList.toggle('hidden', pro);
+  if (usageMeter) usageMeter.style.display = pro ? 'none' : 'block';
+
+  if (!pro) {
+    const u = getUsage();
+    const qLeft = Math.max(0, FREE_QUESTION_LIMIT - u.questions);
+    const dLeft = Math.max(0, FREE_DOC_LIMIT - u.docs);
+    document.getElementById('usage-questions-label').textContent = `${u.questions} / ${FREE_QUESTION_LIMIT}`;
+    document.getElementById('usage-docs-label').textContent = `${u.docs} / ${FREE_DOC_LIMIT}`;
+    const qBar = document.getElementById('usage-questions-bar');
+    const dBar = document.getElementById('usage-docs-bar');
+    qBar.style.width = Math.min(100, (u.questions / FREE_QUESTION_LIMIT) * 100) + '%';
+    dBar.style.width = Math.min(100, (u.docs / FREE_DOC_LIMIT) * 100) + '%';
+    qBar.classList.toggle('danger', qLeft === 0);
+    dBar.classList.toggle('danger', dLeft === 0);
+    document.getElementById('usage-reset-note').textContent = `Resets in ~${hoursUntilReset()}h`;
+  }
+}
+
+function openPricing() {
+  const pro = isPro();
+  document.getElementById('btn-plan-free').textContent = pro ? 'Downgrade' : 'Current Plan';
+  document.getElementById('btn-plan-free').disabled = !pro;
+  document.getElementById('btn-plan-pro').textContent = pro ? 'Current Plan' : 'Upgrade Now';
+  document.getElementById('btn-plan-pro').disabled = pro;
+  document.getElementById('pricing-modal').classList.add('show');
+}
+function closePricing() {
+  document.getElementById('pricing-modal').classList.remove('show');
+}
+document.getElementById('pricing-modal').addEventListener('click', (e) => {
+  if (e.target.id === 'pricing-modal') closePricing();
+});
+
+// ── Razorpay checkout ─────────────────────────────────────────────────────────
+// IMPORTANT: replace RAZORPAY_KEY_ID below with your own live/test key from
+// dashboard.razorpay.com (Settings → API Keys). This is a public "key id" —
+// safe to expose in the browser, NOT a secret key. For a recurring monthly
+// subscription (not just a one-time charge), set up a Razorpay Plan +
+// Subscription via their API/dashboard and swap this to subscription
+// checkout — the one-time order flow below is a simple starting point that
+// charges ₹49 once; wire up auto-renewal once you're ready to go live.
+const RAZORPAY_KEY_ID = 'rzp_test_XXXXXXXXXXXX'; // ← put your Razorpay Key ID here
+
+async function startCheckout() {
+  if (isPro()) return;
+
+  if (!window.Razorpay || RAZORPAY_KEY_ID.includes('XXXX')) {
+    addBotMsg('⚠️ Payments aren\'t fully configured yet — the site owner needs to add a Razorpay key. For now you can continue using the free plan.');
+    closePricing();
+    return;
+  }
+
+  closePricing();
+  showStatus('Setting up payment…');
+
+  let order;
+  try {
+    const orderRes = await fetch('/.netlify/functions/create-order', { method: 'POST' });
+    order = await orderRes.json();
+    if (!order.orderId) throw new Error(order.error || 'No order created');
+  } catch (e) {
+    hideStatus();
+    addBotMsg('⚠️ Could not start checkout right now. Please try again in a moment, or contact support if this continues.');
+    return;
+  }
+  hideStatus();
+
+  const options = {
+    key: RAZORPAY_KEY_ID,
+    amount: order.amount,
+    currency: order.currency,
+    order_id: order.orderId,
+    name: 'DocuChat AI',
+    description: 'Pro Plan — Monthly',
+    handler: async function (response) {
+      // Verify the payment server-side before trusting it — never grant a
+      // paid feature based on client-side success alone, since browser
+      // state can be edited by anyone via DevTools.
+      showStatus('Verifying payment…');
+      try {
+        const verifyRes = await fetch('/.netlify/functions/verify-payment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature: response.razorpay_signature,
+          }),
+        });
+        const verifyData = await verifyRes.json();
+        hideStatus();
+        if (verifyData.valid) {
+          setPlan('pro');
+          closePricing();
+          addBotMsg('🎉 Payment verified! You\'re now on the **Pro plan** — unlimited documents and questions.');
+        } else {
+          addBotMsg('⚠️ Payment could not be verified. If money was deducted, please contact support — no charge should go unconfirmed.');
+        }
+      } catch (e) {
+        hideStatus();
+        addBotMsg('⚠️ Could not verify payment right now (network issue). If money was deducted, please contact support.');
+      }
+    },
+    modal: {
+      ondismiss: function () { /* user closed checkout — no action needed */ }
+    },
+    theme: { color: '#6C63FF' },
+  };
+
+  const rzp = new Razorpay(options);
+  rzp.open();
+}
+
+
 
 // ════════════════════════════════════════════════════════════════════════════
 // SESSION + HISTORY MANAGEMENT
@@ -1053,6 +1597,7 @@ function startNewSession(silent=false) {
   msgEl.innerHTML = '';
   msgEl.appendChild(emptyStateTemplate());
   updateBtn();
+  switchTab('docs');
   if (!silent) renderHistory();
 }
 
@@ -1233,6 +1778,10 @@ async function handleFiles(files) {
     if (docs.find(d => d.name === file.name)) {
       addBotMsg(`"${file.name}" is already loaded.`); continue;
     }
+    if (!canUploadDoc()) {
+      addBotMsg(`🔒 You've reached the free plan's limit of **${FREE_DOC_LIMIT} document uploads per 24 hours**. Your limit resets in ~${hoursUntilReset()}h, or <span class="upgrade-inline" onclick="openPricing()" style="cursor:pointer;text-decoration:underline;color:var(--accent-light)">upgrade to Pro for unlimited uploads — ₹49/month</span>.`);
+      break;
+    }
     showStatus(`Reading ${file.name}…`);
     try {
       const text = await extractText(file);
@@ -1240,6 +1789,7 @@ async function handleFiles(files) {
       docs.push({ name: file.name, ext, text, size: file.size });
       renderDocs();
       if (emptyState.isConnected) emptyState.remove();
+      bumpUsage('docs');
       addBotMsg(`✅ Loaded **${file.name}** — ${text.length.toLocaleString()} characters extracted. Ask me anything about it!`);
     } catch (err) {
       addBotMsg(`❌ Could not read "${file.name}": ${err.message}`);
@@ -1406,6 +1956,11 @@ async function sendMessage() {
   const q = inputEl.value.trim();
   if (!q || isLoading || !docs.length) return;
 
+  if (!canAskQuestion()) {
+    addBotMsg(`🔒 You've used all **${FREE_QUESTION_LIMIT} free questions** for the next 24 hours. Your limit resets in ~${hoursUntilReset()}h, or <span class="upgrade-inline" onclick="openPricing()" style="cursor:pointer;text-decoration:underline;color:var(--accent-light)">upgrade to Pro for unlimited questions — ₹49/month</span>.`);
+    return;
+  }
+
   isLoading = true;
   inputEl.value = '';
   inputEl.style.height = 'auto';
@@ -1448,6 +2003,7 @@ ${buildContext()}`;
       : data?.content?.[0]?.text || 'No response received.';
 
     chatHistory.push({ role: 'assistant', content: reply });
+    bumpUsage('questions');
 
     const bubble = typingEl.querySelector('.msg-bubble');
     bubble.innerHTML = md(reply);
